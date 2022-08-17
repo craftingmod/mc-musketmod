@@ -230,7 +230,7 @@ public abstract class GunItem extends Item {
     }
 
     public static void fireParticles(Level world, Vec3 origin, Vec3 direction) {
-        RandomSource random = world.getRandom();
+        RandomSource random = RandomSource.createNewThreadLocalInstance();
 
         for (int i = 0; i != 10; ++i) {
             double t = Math.pow(random.nextFloat(), 1.5);
