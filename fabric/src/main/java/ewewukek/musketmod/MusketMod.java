@@ -90,4 +90,8 @@ public class MusketMod implements ModInitializer {
         }
 
     }
+
+    public static EntityType<BulletEntity> getBulletEntity() {
+        return BULLET_ENTITY_TYPE;
+    }
 }

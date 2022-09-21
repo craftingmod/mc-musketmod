@@ -48,7 +48,7 @@ public class BulletEntity extends AbstractHurtingProjectile {
     }
 
     public BulletEntity(Level world) {
-        this(MusketMod.BULLET_ENTITY_TYPE, world);
+        this(MusketMod.getBulletEntity(), world);
     }
 
     public boolean isFirstTick() {

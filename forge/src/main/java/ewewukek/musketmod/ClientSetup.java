@@ -41,9 +41,10 @@ public class ClientSetup {
         ItemStack stack = event.getItemStack();
         if (!stack.isEmpty() && stack.getItem() instanceof GunItem) {
             Minecraft mc = Minecraft.getInstance();
+            // https://github.com/AlexModGuy/AlexsMobs/blob/1.19/src/main/java/com/github/alexthe666/alexsmobs/client/event/ClientEvents.java
             ClientUtilities.renderGunInHand(
-                    mc.getItemInHandRenderer(), mc.player,
-                    event.getHand(), event.getPartialTicks(), event.getInterpolatedPitch(),
+                    mc.getEntityRenderDispatcher().getItemInHandRenderer(), mc.player,
+                    event.getHand(), event.getPartialTick(), event.getInterpolatedPitch(),
                     event.getSwingProgress(), event.getEquipProgress(), stack,
                     event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight());
             event.setCanceled(true);
@@ -78,7 +79,7 @@ public class ClientSetup {
     public static class RegistryEvents {
         @SubscribeEvent
         public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerEntityRenderer(MusketMod.BULLET_ENTITY_TYPE, BulletRenderer::new);
+            event.registerEntityRenderer(ModEntities.bulletEntityRegistry.get(), BulletRenderer::new);
         }
     }
 }

@@ -19,7 +19,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
@@ -29,17 +28,14 @@ import net.minecraftforge.network.NetworkEvent;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegisterEvent;
 
 @Mod(MusketMod.MODID)
 public class MusketMod {
     public static final String MODID = "musketmod";
     public static final Path CONFIG_PATH = FMLPaths.CONFIGDIR.get().resolve("musketmod.txt");
-
-    public static final EntityType<BulletEntity> BULLET_ENTITY_TYPE = EntityType.Builder.<BulletEntity>of(BulletEntity::new, MobCategory.MISC)
-            .sized(0.5f, 0.5f)
-            .setTrackingRange(64).setUpdateInterval(5)
-            .setShouldReceiveVelocityUpdates(false)
-            .build(MODID + ":bullet");
 
     public static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel NETWORK_CHANNEL = NetworkRegistry.newSimpleChannel(
@@ -52,38 +48,28 @@ public class MusketMod {
             FMLJavaModLoadingContext.get().getModEventBus().addListener(ClientSetup::init));
         NETWORK_CHANNEL.registerMessage(1, SmokeEffectPacket.class,
             SmokeEffectPacket::encode, SmokeEffectPacket::new, SmokeEffectPacket::handle);
+
+        var modBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        // Register Items
+        new ModItems(modBus);
+        // Register Entities
+        new ModEntities(modBus);
+        // Register Sounds
+        new ModSounds(modBus);
     }
 
-    @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-    public static class RegistryEvents {
-        @SubscribeEvent
-        public static void onItemsRegistry(final RegistryEvent.Register<Item> event) {
-            event.getRegistry().registerAll(
-                Items.MUSKET.setRegistryName(MODID, "musket"),
-                Items.MUSKET_WITH_BAYONET.setRegistryName(MODID, "musket_with_bayonet"),
-                Items.PISTOL.setRegistryName(MODID, "pistol"),
-                Items.CARTRIDGE.setRegistryName(MODID, "cartridge")
-            );
-        }
+    @SubscribeEvent
+    public void register(RegisterEvent event) {
+        /*
+        event.register(ForgeRegistries.Keys.ENTITY_TYPES, helper -> {
+            helper.register(new ResourceLocation(MODID, "bullet"), BULLET_ENTITY_TYPE);
+        });
+         */
+    }
 
-        @SubscribeEvent
-        public static void onEntityRegistry(final RegistryEvent.Register<EntityType<?>> event) {
-            event.getRegistry().register(
-                BULLET_ENTITY_TYPE.setRegistryName(MODID, "bullet")
-            );
-        }
-
-        @SubscribeEvent
-        public static void onSoundRegistry(final RegistryEvent.Register<SoundEvent> event) {
-            event.getRegistry().registerAll(
-                Sounds.MUSKET_LOAD_0.setRegistryName(Sounds.MUSKET_LOAD_0.getLocation()),
-                Sounds.MUSKET_LOAD_1.setRegistryName(Sounds.MUSKET_LOAD_1.getLocation()),
-                Sounds.MUSKET_LOAD_2.setRegistryName(Sounds.MUSKET_LOAD_2.getLocation()),
-                Sounds.MUSKET_READY.setRegistryName(Sounds.MUSKET_READY.getLocation()),
-                Sounds.MUSKET_FIRE.setRegistryName(Sounds.MUSKET_FIRE.getLocation()),
-                Sounds.PISTOL_FIRE.setRegistryName(Sounds.PISTOL_FIRE.getLocation())
-            );
-        }
+    public static EntityType<BulletEntity> getBulletEntity() {
+        return ModEntities.bulletEntityRegistry.get();
     }
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
